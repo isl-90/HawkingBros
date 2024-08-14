@@ -1,0 +1,86 @@
+openapi: 3.0.0
+info:
+    title: Adapter
+    description: Адаптер для получения данных о погоде и обработки сообщений
+    version: 0.0.1
+tags:
+    - name: adapter
+      description: Адаптер
+paths:
+    /adapter/execute:
+        post:
+            tags:
+                - adapter
+            summary: Обработать сообщение и получить прогноз погоды
+            operationId: execute
+            requestBody:
+                description: Данные для обработки
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MsgA'
+                required: true
+            responses:
+                '200':
+                    description: Успех
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MsgB'
+                '400':
+                    description: Неверное значение lng или пустое сообщение
+                '204':
+                    description: Сообщение с языком, отличным от 'ru', было проигнорировано
+                '503':
+                    description: Сервис погоды недоступен
+                '500':
+                    description: Внутренняя ошибка сервера
+components:
+    schemas:
+        MsgA:
+            type: object
+            properties:
+                msg:
+                    type: string
+                    description: "Текстовое сообщение"
+                    example: "Привет!"
+                lng:
+                    type: string
+                    enum:
+                        - ru
+                    description: "Язык сообщения"
+                    example: "ru"
+                coordinates:
+                    type: object
+                    properties:
+                        latitude:
+                            type: number
+                            description: "Широта"
+                            example: 54.35
+                        longitude:
+                            type: number
+                            description: "Долгота"
+                            example: 52.52
+        MsgB:
+            type: object
+            properties:
+                txt:
+                    type: string
+                    description: "Исходное текстовое сообщение"
+                    example: "Привет!"
+                createdDt:
+                    type: string
+                    format: date-time
+                    description: "Дата и время формирования сообщения"
+                    example: "2024-03-13T18:00:00Z"
+                currentTemp:
+                    type: string
+                    description: "Температура воздуха в Цельсиях"
+                    example: "28"
+        GismeteoResponse:
+            type: object
+            properties:
+                temperature:
+                    type: number
+                    description: "Температура воздуха в Цельсиях"
+                    example: 25.0
